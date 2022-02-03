@@ -1,4 +1,6 @@
 from math import sqrt
+from matplotlib import pyplot as plt
+import networkx as nw
 import random, decimal, time, sys
 
 f = open(sys.argv[1],"r")
@@ -111,3 +113,16 @@ end_time = time.time()
 print("Solução Final \n", solucao_final)
 print("Custo Final: ", cost)
 print("Tempo total de execução: {time} \n".format(time = str(end_time - init_time)))
+
+G = nw.Graph()
+for i in range(1 ,tamanho + 1):
+    G.add_node(i , pos = (bairros[str(i)][0], bairros[str(i)][1]))
+for i in range(1, tamanho + 1):
+    if i == tamanho:
+        G.add_edge(i, 1)
+    else :
+        G.add_edge(i, i + 1)
+
+pos = nw.get_node_attributes(G, 'pos')
+nw.draw(G, pos, node_size = 10)
+plt.show()
