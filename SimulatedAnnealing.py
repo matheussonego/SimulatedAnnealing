@@ -74,7 +74,10 @@ def probabilidade(custo_antigo,custo_novo,temperatura): #calcula a probabilidade
         resultado = round(float(resultado[9:-2]))
     return resultado
 
-repeticoes_de_mudanca = int(sys.argv[2])
+if len(sys.argv) < 3:
+    repeticoes_de_mudanca = 500
+else :
+    repeticoes_de_mudanca = int(sys.argv[2])
 def annealing(solution):
     old_cost = custo_total(solution)
     T = 1.0
