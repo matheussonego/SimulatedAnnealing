@@ -105,12 +105,13 @@ def gerar_solucao(): #gera uma solução aleatória
 
 
 solucao_inicial = gerar_solucao()
+print("Custo da solução aleatória inicial: {custo}".format(custo = custo_total(solucao_inicial)))
 
 print("Calculando rotas.....\n")
 init_time = time.time()
 solucao_final, cost = annealing(solucao_inicial)
 end_time = time.time()
-print("Solução Final \n", solucao_final)
+print("Solução Final \n {} \n".format(solucao_final))
 print("Custo Final: ", cost)
 print("Tempo total de execução: {time} \n".format(time = str(end_time - init_time)))
 
