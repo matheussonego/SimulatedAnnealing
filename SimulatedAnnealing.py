@@ -14,9 +14,10 @@ def distancia(xyA,xyB): #calcula o tamanho da reta entre dois pontos
     d = sqrt((xB-xA)**2 + (yB-yA)**2)
     return round(d,12)
 
+tamanho = len(bairros)
 bairros_custo = {} #dicionario com o custo de cada viagem {('bairroA_number','bairroB_number'): distancia}
-for k in range(1,39):
-    for c in range(1,39):
+for k in range(1,tamanho + 1):
+    for c in range(1,tamanho + 1):
         bairros_custo[(str(k),str(c))] = distancia(bairros[str(k)],bairros[str(c)])
 
 def custo_total(lista_bairros): #retorna o custo total de uma solução
@@ -30,16 +31,17 @@ def custo_total(lista_bairros): #retorna o custo total de uma solução
 
 def vizinho(solucao):
     solucao_anterior = solucao.copy()
+    nmax = len(solucao) - 1
     while True:
-        posA = random.randint(0,37)
-        posB = random.randint(0,37)
+        posA = random.randint(0,nmax)
+        posB = random.randint(0,nmax)
         a = solucao[posA]
         b = solucao[posB]
         solucao[posA] = b
         solucao[posB] = a
 
-        posC = random.randint(0, 37)
-        posD = random.randint(0, 37)
+        posC = random.randint(0, nmax)
+        posD = random.randint(0, nmax)
         c = solucao[posC]
         d = solucao[posD]
         solucao[posC] = d
@@ -70,6 +72,7 @@ def probabilidade(custo_antigo,custo_novo,temperatura): #calcula a probabilidade
         resultado = round(float(resultado[9:-2]))
     return resultado
 
+repeticoes_de_mudanca = int(sys.argv[2])
 def annealing(solution):
     old_cost = custo_total(solution)
     T = 1.0
@@ -78,7 +81,7 @@ def annealing(solution):
     best_solution, best_cost = solution[::], old_cost
     while T > T_min:
         i = 1
-        while i <= 500:
+        while i <= repeticoes_de_mudanca:
             new_solution = vizinho(solution)
             new_cost = custo_total(new_solution)
             p = probabilidade(old_cost, new_cost, T)
@@ -94,7 +97,7 @@ def annealing(solution):
     return best_solution, best_cost
 
 def gerar_solucao(): #gera uma solução aleatória
-    solucao_aleatoria = [x for x in range(1,39)]
+    solucao_aleatoria = [x for x in range(1,tamanho + 1)]
     random.shuffle(solucao_aleatoria)
     return solucao_aleatoria
 
@@ -107,4 +110,4 @@ solucao_final, cost = annealing(solucao_inicial)
 end_time = time.time()
 print("Solução Final \n", solucao_final)
 print("Custo Final: ", cost)
-print("Tempo total de execução: ", str(end_time - init_time))
+print("Tempo total de execução: {time} \n".format(time = str(end_time - init_time)))
