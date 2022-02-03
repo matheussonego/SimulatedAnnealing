@@ -125,5 +125,5 @@ for i in range(len(solucao_final)):
         G.add_edge(solucao_final[i], solucao_final[i + 1])
 
 pos = nw.get_node_attributes(G, 'pos')
-nw.draw(G, pos, node_size = 10)
+nw.draw(G, pos, node_size = 10, with_labels=True)
 plt.show()
