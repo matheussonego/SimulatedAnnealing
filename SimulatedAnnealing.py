@@ -115,13 +115,14 @@ print("Custo Final: ", cost)
 print("Tempo total de execução: {time} \n".format(time = str(end_time - init_time)))
 
 G = nw.Graph()
-for i in range(1 ,tamanho + 1):
-    G.add_node(i , pos = (bairros[str(i)][0], bairros[str(i)][1]))
-for i in range(1, tamanho + 1):
-    if i == tamanho:
-        G.add_edge(i, 1)
+for i in range(len(solucao_final)):
+    node = solucao_final[i]
+    G.add_node(node , pos = (bairros[str(node)][0], bairros[str(node)][1]))
+for i in range(len(solucao_final)):
+    if i == len(solucao_final) - 1:
+        G.add_edge(solucao_final[i], solucao_final[0])
     else :
-        G.add_edge(i, i + 1)
+        G.add_edge(solucao_final[i], solucao_final[i + 1])
 
 pos = nw.get_node_attributes(G, 'pos')
 nw.draw(G, pos, node_size = 10)
