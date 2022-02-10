@@ -56,6 +56,16 @@ DEFAULT_TEMPERATURA_MINIMA = 0.001
 DEFAULT_ALPHA = 0.9
 DEFAULT_REPETICOES = 500
 
+DEFAULT_START_ALPHA = 0.8
+DEFAULT_STEP_ALPHA = 0.01
+DEFAULT_MAX_ALPHA = 0.99
+
+DEFAULT_INIT_MIN_TEMP = 0.001
+DEFAULT_STEP_MIN_TEMP = 0.0003
+DEFAULT_END_MIN_TEMP = 0.00001
+
+DEFAULT_MEDICAO = 'a'
+
 DEFAULT_LOG_LEVEL = logging.INFO
 TIME_FORMAT = '%Y-%m-%d,%H:%M:%S'
 
@@ -166,7 +176,7 @@ class Experimento(ABC):
 		self.id = "letraid"
 		self.args = args
 		self.script = "abc.py"
-		self.output = "out.txt"
+		self.output = "alg_simulated_annealing.txt"
 		self.tamanhos = []
 		self.medias = []
 		self.desvios = []
@@ -207,6 +217,13 @@ class Experimento(ABC):
 		comando_str += " --tempmin {}".format(self.args.tempmin)
 		comando_str += " --alpha {}".format(self.args.alpha)
 		comando_str += " --repetitions {}".format(self.args.repetitions)
+		comando_str += " --medicao {}".format(self.args.medicao)
+		comando_str += " --alphastart {}".format(self.args.alphastart)
+		comando_str += " --alphastep {}".format(self.args.alphastep)
+		comando_str += " --alphamax {}".format(self.args.alphamax)
+		comando_str += " --initmintemp {}".format(self.args.initmintemp)
+		comando_str += " --stepmintemp {}".format(self.args.stepmintemp)
+		comando_str += " --endmintemp {}".format(self.args.endmintemp)
 		if self.args.seed is not None:
 			comando_str += " --seed {}".format(self.args.seed)
 
@@ -226,7 +243,7 @@ class Experimento(ABC):
 		for l in f:
 			#print("linha: {}".format(l))
 			if l[0] != "#":
-				self.tamanhos.append(int(l.split(" ")[0]))
+				self.tamanhos.append(float(l.split(" ")[0]))
 				self.medias.append(float(l.split(" ")[1]))
 				self.desvios.append(float(l.split(" ")[2]))
 		f.close()
@@ -235,6 +252,7 @@ class Experimento(ABC):
 		# mostra dados
 		print("Tamanho\tMedia\t\tDesvio\t\tAproximado")
 		for i in range(len(self.tamanhos)):
+			print("i = {}, len = {}".format(i, len(self.tamanhos)))
 			print("%03d\t%02f\t%02f\t%02f" % (self.tamanhos[i], self.medias[i], self.desvios[i], self.aproximados[i]))
 		print("")
 
@@ -337,6 +355,27 @@ def main():
 	help_mesg = "repetições.         Padrão:{}".format(DEFAULT_REPETICOES)
 	parser.add_argument("--repetitions", "-r", help=help_msg, default=DEFAULT_REPETICOES, type=float)
 
+	help_msg = "medicao.       Padrão:{}".format(DEFAULT_MEDICAO)
+	parser.add_argument("--medicao", "-md", help=help_msg, default=DEFAULT_MEDICAO, type=str)
+
+	help_msg = "alphastart.       Padrão:{}".format(DEFAULT_START_ALPHA)
+	parser.add_argument("--alphastart", "-sa", help=help_msg, default=DEFAULT_START_ALPHA, type=float)
+
+	help_msg = "alphastep.       Padrão:{}".format(DEFAULT_STEP_ALPHA)
+	parser.add_argument("--alphastep", "-ass", help=help_msg, default=DEFAULT_STEP_ALPHA, type=float)
+
+	help_msg = "alphamax.       Padrão:{}".format(DEFAULT_MAX_ALPHA)
+	parser.add_argument("--alphamax", "-am", help=help_msg, default=DEFAULT_MAX_ALPHA, type=float)
+
+	help_msg = "initmintemp.       Padrão:{}".format(DEFAULT_INIT_MIN_TEMP)
+	parser.add_argument("--initmintemp", "-imt", help=help_msg, default=DEFAULT_INIT_MIN_TEMP, type=float)
+
+	help_msg = "stepmintemp.       Padrão:{}".format(DEFAULT_STEP_MIN_TEMP)
+	parser.add_argument("--stepmintemp", "-smt", help=help_msg, default=DEFAULT_STEP_MIN_TEMP, type=float)
+
+	help_msg = "endmintemp.       Padrão:{}".format(DEFAULT_END_MIN_TEMP)
+	parser.add_argument("--endmintemp", "-emt", help=help_msg, default=DEFAULT_END_MIN_TEMP, type=float)
+
 	help_msg = "figura (extensão .png ou .pdf) ou nenhum para apresentar na tela.  Padrão:{}".format(DEFAULT_OUTPUT)
 	parser.add_argument("--out", "-o", help=help_msg, default=DEFAULT_OUTPUT, type=str)
 
@@ -376,7 +415,7 @@ def main():
 				e.executa_experimentos()
 			e.carrega_resultados()
 			e.executa_aproximacao()
-			e.imprime_dados()
+			#e.imprime_dados()
 			e.plota_medicao()
 			#e.plota_aproximacao()
 			#e.plota_assintotica()

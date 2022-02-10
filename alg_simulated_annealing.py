@@ -11,6 +11,17 @@ DEFAULT_TEMPERATURA_MINIMA = 0.001
 DEFAULT_ALPHA = 0.9
 DEFAULT_REPETICOES = 500
 
+DEFAULT_START_ALPHA = 0.8
+DEFAULT_STEP_ALPHA = 0.01
+DEFAULT_MAX_ALPHA = 0.99
+
+DEFAULT_INIT_MIN_TEMP = 0.001
+DEFAULT_STEP_MIN_TEMP = 0.0003
+DEFAULT_END_MIN_TEMP = 0.00001
+
+DEFAULT_MEDICAO = 'a'
+
+from email.policy import default
 from subprocess import Popen, PIPE
 from time import sleep, time
 from multiprocessing import Process
@@ -124,6 +135,94 @@ def gerar_solucao(tamanho): #gera uma solução aleatória
     random.shuffle(solucao_aleatoria)
     return solucao_aleatoria
 
+def tamanho_instancia(args) :
+	trials = args.trials
+	f = open(args.out, "w")
+	f.write("#Simulated Annealing\n")
+	f.write("#n time_s_avg time_s_std (for {} trials)\n".format(trials))
+	np.random.seed(args.seed)
+	for n in range(int(args.nstart), int(args.nstop+1), int(args.nstep)): #range(1, 100):
+		resultados = [0 for i in range(trials)]
+		tempos = [0 for i in range(trials)]
+		for trial in range(trials):
+			print("\n-------")
+			print("n: {} trial: {}".format(n, trial+1))
+			entrada = gerar_solucao(n)
+			print("Entrada: {}".format(entrada))
+			tempo_inicio = timeit.default_timer()
+			resultados[trial] = annealing(entrada, args.tempmin, args.alpha, args.repetitions)
+			tempo_fim = timeit.default_timer()
+			tempos[trial] = tempo_fim - tempo_inicio
+			print("Saída: {}".format(resultados[trial]))
+			print('Tempo: {} s'.format(tempos[trial]))
+			print("")
+
+		tempos_avg = np.average(tempos)  # calcula média
+		tempos_std = np.std(a=tempos, ddof=False)  # ddof=calcula desvio padrao de uma amostra?
+
+		f.write("{} {} {}\n".format(n, tempos_avg, tempos_std))
+	f.close()
+
+def tamanho_alpha(args) :
+	trials = args.trials
+	f = open(args.out, "w")
+	f.write("#Simulated Annealing\n")
+	f.write("#alpha time_s_avg time_s_std (for {} trials)\n".format(trials))
+	np.random.seed(args.seed)
+	n = args.alphastart
+	while n <= args.alphamax:
+		resultados = [0 for i in range(trials)]
+		tempos = [0 for i in range(trials)]
+		for trial in range(trials):
+			print("\n-------")
+			print("alpha: {} trial: {}".format(n, trial+1))
+			entrada = gerar_solucao(args.nstop)
+			print("Entrada: {}".format(entrada))
+			tempo_inicio = timeit.default_timer()
+			resultados[trial] = annealing(entrada, args.tempmin, n, args.repetitions)
+			tempo_fim = timeit.default_timer()
+			tempos[trial] = tempo_fim - tempo_inicio
+			print("Saída: {}".format(resultados[trial]))
+			print('Tempo: {} s'.format(tempos[trial]))
+			print("")
+
+		tempos_avg = np.average(tempos)  # calcula média
+		tempos_std = np.std(a=tempos, ddof=False)  # ddof=calcula desvio padrao de uma amostra?
+
+		f.write("{} {} {}\n".format(n, tempos_avg, tempos_std))
+		n += args.alphastep
+	f.close()
+
+def tamanho_min_temp(args) :
+	trials = args.trials
+	f = open(args.out, "w")
+	f.write("#Simulated Annealing\n")
+	f.write("#temp time_s_avg time_s_std (for {} trials)\n".format(trials))
+	np.random.seed(args.seed)
+	n = args.initmintemp
+	while n >= args.endmintemp:
+		resultados = [0 for i in range(trials)]
+		tempos = [0 for i in range(trials)]
+		for trial in range(trials):
+			print("\n-------")
+			print("temperatura_mínima: {} trial: {}".format(n, trial+1))
+			entrada = gerar_solucao(args.nstop)
+			print("Entrada: {}".format(entrada))
+			tempo_inicio = timeit.default_timer()
+			resultados[trial] = annealing(entrada, n, args.alpha, args.repetitions)
+			tempo_fim = timeit.default_timer()
+			tempos[trial] = tempo_fim - tempo_inicio
+			print("Saída: {}".format(resultados[trial]))
+			print('Tempo: {} s'.format(tempos[trial]))
+			print("")
+
+		tempos_avg = np.average(tempos)  # calcula média
+		tempos_std = np.std(a=tempos, ddof=False)  # ddof=calcula desvio padrao de uma amostra?
+
+		f.write("{} {} {}\n".format(n, tempos_avg, tempos_std))
+		n = n - args.stepmintemp
+	f.close()
+
 def main():
 	# Definição de argumentos
 	parser = argparse.ArgumentParser(description='Naive TPS')
@@ -151,40 +250,36 @@ def main():
 	help_msg = "alpha.        Padrão:{}".format(DEFAULT_ALPHA)
 	parser.add_argument("--alpha", "-p", help=help_msg, default=DEFAULT_ALPHA, type=float)
 
-	help_mesg = "repetições.         Padrão:{}".format(DEFAULT_REPETICOES)
+	help_msg = "repetições.         Padrão:{}".format(DEFAULT_REPETICOES)
 	parser.add_argument("--repetitions", "-r", help=help_msg, default=DEFAULT_REPETICOES, type=float)
+
+	help_msg = "medicao.       Padrão:{}".format(DEFAULT_MEDICAO)
+	parser.add_argument("--medicao", "-m", help=help_msg, default=DEFAULT_MEDICAO, type=str)
+
+	help_msg = "alphastart.       Padrão:{}".format(DEFAULT_START_ALPHA)
+	parser.add_argument("--alphastart", "-sa", help=help_msg, default=DEFAULT_START_ALPHA, type=float)
+
+	help_msg = "alphastep.       Padrão:{}".format(DEFAULT_STEP_ALPHA)
+	parser.add_argument("--alphastep", "-ass", help=help_msg, default=DEFAULT_STEP_ALPHA, type=float)
+
+	help_msg = "alphamax.       Padrão:{}".format(DEFAULT_MAX_ALPHA)
+	parser.add_argument("--alphamax", "-am", help=help_msg, default=DEFAULT_MAX_ALPHA, type=float)
+
+	help_msg = "initmintemp.       Padrão:{}".format(DEFAULT_INIT_MIN_TEMP)
+	parser.add_argument("--initmintemp", "-imt", help=help_msg, default=DEFAULT_INIT_MIN_TEMP, type=float)
+
+	help_msg = "stepmintemp.       Padrão:{}".format(DEFAULT_STEP_MIN_TEMP)
+	parser.add_argument("--stepmintemp", "-smt", help=help_msg, default=DEFAULT_STEP_MIN_TEMP, type=float)
+
+	help_msg = "endmintemp.       Padrão:{}".format(DEFAULT_END_MIN_TEMP)
+	parser.add_argument("--endmintemp", "-emt", help=help_msg, default=DEFAULT_END_MIN_TEMP, type=float)
 
 	# Lê argumentos from da linha de comando
 	args = parser.parse_args()
 
-
-	trials = args.trials
-	f = open(args.out, "w")
-	f.write("#Selection sort\n")
-	f.write("#n time_s_avg time_s_std (for {} trials)\n".format(trials))
-	np.random.seed(args.seed)
-	for n in range(args.nstart, args.nstop+1, args.nstep): #range(1, 100):
-		resultados = [0 for i in range(trials)]
-		tempos = [0 for i in range(trials)]
-		for trial in range(trials):
-			print("\n-------")
-			print("n: {} trial: {}".format(n, trial+1))
-			entrada = gerar_solucao(n)
-			print("Entrada: {}".format(entrada))
-			tempo_inicio = timeit.default_timer()
-			resultados[trial] = annealing(entrada, args.tempmin, args.alpha, args.repetitions)
-			tempo_fim = timeit.default_timer()
-			tempos[trial] = tempo_fim - tempo_inicio
-			print("Saída: {}".format(resultados[trial]))
-			print('Tempo: {} s'.format(tempos[trial]))
-			print("")
-
-		tempos_avg = np.average(tempos)  # calcula média
-		tempos_std = np.std(a=tempos, ddof=False)  # ddof=calcula desvio padrao de uma amostra?
-
-
-		f.write("{} {} {}\n".format(n, tempos_avg, tempos_std))
-	f.close()
+	tamanho_instancia(args)
+	#tamanho_alpha(args)
+	#tamanho_min_temp(args)
 
 
 if __name__ == '__main__':
