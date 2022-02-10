@@ -254,7 +254,7 @@ def main():
 	parser.add_argument("--repetitions", "-r", help=help_msg, default=DEFAULT_REPETICOES, type=float)
 
 	help_msg = "medicao.       Padrão:{}".format(DEFAULT_MEDICAO)
-	parser.add_argument("--medicao", "-m", help=help_msg, default=DEFAULT_MEDICAO, type=str)
+	parser.add_argument("--medicao", "-md", help=help_msg, default=DEFAULT_MEDICAO, type=str)
 
 	help_msg = "alphastart.       Padrão:{}".format(DEFAULT_START_ALPHA)
 	parser.add_argument("--alphastart", "-sa", help=help_msg, default=DEFAULT_START_ALPHA, type=float)
@@ -277,9 +277,12 @@ def main():
 	# Lê argumentos from da linha de comando
 	args = parser.parse_args()
 
-	tamanho_instancia(args)
-	#tamanho_alpha(args)
-	#tamanho_min_temp(args)
+	if args.medicao == 'a' :
+		tamanho_instancia(args)
+	if args.medicao == 'b' :
+		tamanho_alpha(args)
+	if args.medicao == 'c' :
+		tamanho_min_temp(args)
 
 
 if __name__ == '__main__':
