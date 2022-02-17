@@ -241,7 +241,7 @@ def main():
 	help_msg = "n passo.           Padrão:{}".format(DEFAULT_N_STEP)
 	parser.add_argument("--nstep", "-e", help=help_msg, default=DEFAULT_N_STEP, type=int)
 
-	help_msg = "tentativas.        Padrão:{}".format(DEFAULT_N_STEP)
+	help_msg = "tentativas.        Padrão:{}".format(DEFAULT_TRIALS)
 	parser.add_argument("--trials", "-t", help=help_msg, default=DEFAULT_TRIALS, type=int)
 
 	help_msg = "temperatura mínima.         Padrão:{}".format(DEFAULT_TEMPERATURA_MINIMA)
