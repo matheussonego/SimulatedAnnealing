@@ -415,7 +415,7 @@ def main():
 				e.executa_experimentos()
 			e.carrega_resultados()
 			e.executa_aproximacao()
-			#e.imprime_dados()
+			e.imprime_dados()
 			e.plota_medicao()
 			#e.plota_aproximacao()
 			#e.plota_assintotica()
@@ -423,9 +423,24 @@ def main():
 	# configurações gerais
 	plt.legend()
 	#plt.xticks(range(args.nstart, args.nstop+1, args.nstep))
-	plt.title("Impacto de n".format(args.trials, args.seed))
-	plt.xlabel("Tamanho da instância (n)")
-	plt.ylabel("Função")
+
+	title = "Impacto de n"
+	xlabel = "Tamanho da instância (n)"
+	ylabel = "Tempo"
+
+	if (args.medicao == 'b'):
+		title = "Impacto de alpha"
+		xlabel = "Valor de alpha"
+		ylabel = "Tempo"
+	
+	if (args.medicao == 'c'):
+		title = "Impacto da temperatura mínima"
+		xlabel = "Valor da temperatura mínima"
+		ylabel = "Tempo"
+
+	plt.title(title + " | quantidade de testes: {}, seed: {}".format(args.trials, args.seed))
+	plt.xlabel(xlabel)
+	plt.ylabel(ylabel)
 
 	if args.out is None:
 		# mostra
