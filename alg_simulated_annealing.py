@@ -202,9 +202,9 @@ def tamanho_alpha(args) :
 		tempos_std = np.std(a=tempos, ddof=False)  # ddof=calcula desvio padrao de uma amostra?
 
 		if args.medicaotype == 'b' :
-			f.write("{} {} {}\n".format(n, custos_avg, custos_std))
+			f.write("{} {} {}\n".format(int(n * 100), custos_avg, custos_std))
 		else :
-			f.write("{} {} {}\n".format(n, tempos_avg, tempos_std))
+			f.write("{} {} {}\n".format(int(n * 100), tempos_avg, tempos_std))
 		n += args.alphastep
 	f.close()
 
