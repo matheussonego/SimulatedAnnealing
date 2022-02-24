@@ -20,6 +20,7 @@ DEFAULT_STEP_MIN_TEMP = 0.0003
 DEFAULT_END_MIN_TEMP = 0.00001
 
 DEFAULT_MEDICAO = 'a'
+DEFAULT_MEDICAO_TYPE = 'a'
 
 from email.policy import default
 from subprocess import Popen, PIPE
@@ -144,23 +145,30 @@ def tamanho_instancia(args) :
 	for n in range(int(args.nstart), int(args.nstop+1), int(args.nstep)): #range(1, 100):
 		resultados = [0 for i in range(trials)]
 		tempos = [0 for i in range(trials)]
+		custos = [0 for i in range(trials)]
 		for trial in range(trials):
 			print("\n-------")
 			print("n: {} trial: {}".format(n, trial+1))
 			entrada = gerar_solucao(n)
 			print("Entrada: {}".format(entrada))
 			tempo_inicio = timeit.default_timer()
-			resultados[trial] = annealing(entrada, args.tempmin, args.alpha, args.repetitions)
+			resultados[trial], custos[trial] = annealing(entrada, args.tempmin, args.alpha, args.repetitions)
 			tempo_fim = timeit.default_timer()
 			tempos[trial] = tempo_fim - tempo_inicio
 			print("Saída: {}".format(resultados[trial]))
 			print('Tempo: {} s'.format(tempos[trial]))
+			print('Custo: {}'.format(custos[trial]))
 			print("")
 
+		custos_avg = np.average(custos)
+		custos_std = np.std(a=custos, ddof=False)
 		tempos_avg = np.average(tempos)  # calcula média
 		tempos_std = np.std(a=tempos, ddof=False)  # ddof=calcula desvio padrao de uma amostra?
 
-		f.write("{} {} {}\n".format(n, tempos_avg, tempos_std))
+		if args.medicaotype == 'b' :
+			f.write("{} {} {}\n".format(n, custos_avg, custos_std))
+		else :
+			f.write("{} {} {}\n".format(n, tempos_avg, tempos_std))
 	f.close()
 
 def tamanho_alpha(args) :
@@ -173,23 +181,30 @@ def tamanho_alpha(args) :
 	while n <= args.alphamax:
 		resultados = [0 for i in range(trials)]
 		tempos = [0 for i in range(trials)]
+		custos = [0 for i in range(trials)]
 		for trial in range(trials):
 			print("\n-------")
 			print("alpha: {} trial: {}".format(n, trial+1))
 			entrada = gerar_solucao(args.nstop)
 			print("Entrada: {}".format(entrada))
 			tempo_inicio = timeit.default_timer()
-			resultados[trial] = annealing(entrada, args.tempmin, n, args.repetitions)
+			resultados[trial], custos[trial] = annealing(entrada, args.tempmin, n, args.repetitions)
 			tempo_fim = timeit.default_timer()
 			tempos[trial] = tempo_fim - tempo_inicio
 			print("Saída: {}".format(resultados[trial]))
 			print('Tempo: {} s'.format(tempos[trial]))
+			print('Custo: {}'.format(custos[trial]))
 			print("")
 
+		custos_avg = np.average(custos)
+		custos_std = np.std(a=custos, ddof=False)
 		tempos_avg = np.average(tempos)  # calcula média
 		tempos_std = np.std(a=tempos, ddof=False)  # ddof=calcula desvio padrao de uma amostra?
 
-		f.write("{} {} {}\n".format(n, tempos_avg, tempos_std))
+		if args.medicaotype == 'b' :
+			f.write("{} {} {}\n".format(n, custos_avg, custos_std))
+		else :
+			f.write("{} {} {}\n".format(n, tempos_avg, tempos_std))
 		n += args.alphastep
 	f.close()
 
@@ -203,23 +218,30 @@ def tamanho_min_temp(args) :
 	while n >= args.endmintemp:
 		resultados = [0 for i in range(trials)]
 		tempos = [0 for i in range(trials)]
+		custos = [0 for i in range(trials)]
 		for trial in range(trials):
 			print("\n-------")
 			print("temperatura_mínima: {} trial: {}".format(n, trial+1))
 			entrada = gerar_solucao(args.nstop)
 			print("Entrada: {}".format(entrada))
 			tempo_inicio = timeit.default_timer()
-			resultados[trial] = annealing(entrada, n, args.alpha, args.repetitions)
+			resultados[trial], custos[trials] = annealing(entrada, n, args.alpha, args.repetitions)
 			tempo_fim = timeit.default_timer()
 			tempos[trial] = tempo_fim - tempo_inicio
 			print("Saída: {}".format(resultados[trial]))
 			print('Tempo: {} s'.format(tempos[trial]))
+			print('Custo: {}'.format(custos[trial]))
 			print("")
 
+		custos_avg = np.average(custos)
+		custos_std = np.std(a=custos, ddof=False)
 		tempos_avg = np.average(tempos)  # calcula média
 		tempos_std = np.std(a=tempos, ddof=False)  # ddof=calcula desvio padrao de uma amostra?
 
-		f.write("{} {} {}\n".format(n, tempos_avg, tempos_std))
+		if args.medicaotype == 'b' :
+			f.write("{} {} {}\n".format(n, custos_avg, custos_std))
+		else :
+			f.write("{} {} {}\n".format(n, tempos_avg, tempos_std))
 		n = n - args.stepmintemp
 	f.close()
 
@@ -255,6 +277,9 @@ def main():
 
 	help_msg = "medicao.       Padrão:{}".format(DEFAULT_MEDICAO)
 	parser.add_argument("--medicao", "-md", help=help_msg, default=DEFAULT_MEDICAO, type=str)
+
+	help_msg = "tipo de medicao. a = medição por tempo, b = medicao por custo	  Padrão:{}".format(DEFAULT_MEDICAO_TYPE)
+	parser.add_argument("--medicaotype", "-mt", help=help_msg, default=DEFAULT_MEDICAO_TYPE, type=str)
 
 	help_msg = "alphastart.       Padrão:{}".format(DEFAULT_START_ALPHA)
 	parser.add_argument("--alphastart", "-sa", help=help_msg, default=DEFAULT_START_ALPHA, type=float)

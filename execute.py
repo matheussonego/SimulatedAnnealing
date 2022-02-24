@@ -65,6 +65,7 @@ DEFAULT_STEP_MIN_TEMP = 0.0003
 DEFAULT_END_MIN_TEMP = 0.00001
 
 DEFAULT_MEDICAO = 'a'
+DEFAULT_MEDICAO_TYPE = 'a'
 
 DEFAULT_LOG_LEVEL = logging.INFO
 TIME_FORMAT = '%Y-%m-%d,%H:%M:%S'
@@ -224,6 +225,7 @@ class Experimento(ABC):
 		comando_str += " --initmintemp {}".format(self.args.initmintemp)
 		comando_str += " --stepmintemp {}".format(self.args.stepmintemp)
 		comando_str += " --endmintemp {}".format(self.args.endmintemp)
+		comando_str += " --medicaotype {}".format(self.args.medicaotype)
 		if self.args.seed is not None:
 			comando_str += " --seed {}".format(self.args.seed)
 
@@ -298,12 +300,12 @@ class SimulatedAnnealing(Experimento):
 		self.aproximacao_cor_rgb = mapa_escalar.to_rgba(2*indice_cor+1)
 
 		# configurações de plotagem upper bound g(x)
-		#self.gn1_constante = 0.000001
-		#self.gn1_legenda = "g(n)=n^2, c={:.2e}".format(self.gn1_constante)
+		#self.gn1_constante = 0.1
+		#self.gn1_legenda = "g(n)=n, c={:.2e}".format(self.gn1_constante)
 
 		# configurações de plotagem lower bound g(x)
-		#self.gn2_constante = 0.0000001
-		#self.gn2_legenda = "g(n)=n^2, c={:.2e}".format(self.gn2_constante)
+		#self.gn2_constante = 0.000008
+		#self.gn2_legenda = "g(n)=n, c={:.2e}".format(self.gn2_constante)
 
 		self.multiplo = 1
 		self.tamanhos_aproximados = range(self.args.nmax * self.multiplo+1)
@@ -357,6 +359,9 @@ def main():
 
 	help_msg = "medicao.       Padrão:{}".format(DEFAULT_MEDICAO)
 	parser.add_argument("--medicao", "-md", help=help_msg, default=DEFAULT_MEDICAO, type=str)
+
+	help_msg = "tipo de medicao. a = medição por tempo, b = medicao por custo	  Padrão:{}".format(DEFAULT_MEDICAO_TYPE)
+	parser.add_argument("--medicaotype", "-mt", help=help_msg, default=DEFAULT_MEDICAO_TYPE, type=str)
 
 	help_msg = "alphastart.       Padrão:{}".format(DEFAULT_START_ALPHA)
 	parser.add_argument("--alphastart", "-sa", help=help_msg, default=DEFAULT_START_ALPHA, type=float)
@@ -415,7 +420,7 @@ def main():
 				e.executa_experimentos()
 			e.carrega_resultados()
 			e.executa_aproximacao()
-			e.imprime_dados()
+			#e.imprime_dados()
 			e.plota_medicao()
 			#e.plota_aproximacao()
 			#e.plota_assintotica()
@@ -428,15 +433,16 @@ def main():
 	xlabel = "Tamanho da instância (n)"
 	ylabel = "Tempo"
 
+	if (args.medicaotype == 'b'):
+		ylabel = "Custo"
+
 	if (args.medicao == 'b'):
 		title = "Impacto de alpha"
 		xlabel = "Valor de alpha"
-		ylabel = "Tempo"
 	
 	if (args.medicao == 'c'):
 		title = "Impacto da temperatura mínima"
 		xlabel = "Valor da temperatura mínima"
-		ylabel = "Tempo"
 
 	plt.title(title + " | quantidade de testes: {}, seed: {}".format(args.trials, args.seed))
 	plt.xlabel(xlabel)
