@@ -312,54 +312,18 @@ class SimulatedAnnealingLinear(Experimento):
 
 	def executa_aproximacao(self):
 		# realiza aproximação
+		offset = self.medias[0]
+		self.medias = [x - offset for x in self.medias]
 		parametros, pcov = opt.curve_fit(funcao_linear, xdata=self.tamanhos, ydata=self.medias)
 		self.aproximados = [funcao_linear(x, *parametros) for x in self.tamanhos_aproximados ]
+		self.medias = [x + offset for x in self.medias]
+		self.aproximados = [x + offset for x in self.aproximados]
 		print("aproximados:           {}".format(self.aproximados))
 		print("parametros_otimizados: {}".format(parametros))
 		print("pcov:                  {}".format(pcov))
 
 	def g(self, n, c):
 		return n*c
-
-class SimulatedAnnealingQuadratica(Experimento):
-
-	def __init__(self, args):
-		super().__init__(args)
-		self.id = "q"
-		self.script = "alg_simulated_annealing.py"
-		self.output = "alg_simulated_annealing.txt"
-
-		indice_cor = 2
-
-		# configurações de plotagem
-		self.medicao_legenda = "simulated annealing medido"
-		self.medicao_cor_rgb = mapa_escalar.to_rgba(2*indice_cor)
-		self.medicao_formato = formatos[indice_cor]
-
-		self.aproximacao_legenda = "simulated annealing aproximado"
-		self.aproximacao_cor_rgb = mapa_escalar.to_rgba(2*indice_cor+1)
-
-		# configurações de plotagem upper bound g(x)
-		self.gn1_constante = 0.1
-		self.gn1_legenda = "g(n)=n^2, c={:.2e}".format(self.gn1_constante)
-
-		# configurações de plotagem lower bound g(x)
-		self.gn2_constante = 0.000008
-		self.gn2_legenda = "g(n)=n^2, c={:.2e}".format(self.gn2_constante)
-
-		self.multiplo = 1
-		self.tamanhos_aproximados = range(self.args.nmax * self.multiplo+1)
-
-	def executa_aproximacao(self):
-		# realiza aproximação
-		parametros, pcov = opt.curve_fit(funcao_quadratica, xdata=self.tamanhos, ydata=self.medias)
-		self.aproximados = [funcao_quadratica(x, *parametros) for x in self.tamanhos_aproximados ]
-		print("aproximados:           {}".format(self.aproximados))
-		print("parametros_otimizados: {}".format(parametros))
-		print("pcov:                  {}".format(pcov))
-
-	def g(self, n, c):
-		return n*n*c
 
 def main():
 	'''
@@ -452,7 +416,7 @@ def main():
 	imprime_config(args)
 
 	# lista de experimentos disponíveis TspNaive(args),
-	experimentos = [SimulatedAnnealingLinear(args), SimulatedAnnealingQuadratica(args)]
+	experimentos = [SimulatedAnnealingLinear(args)]
 
 	for e in experimentos:
 		if args.algoritmos is None or e.id in args.algoritmos:
@@ -462,9 +426,8 @@ def main():
 			e.executa_aproximacao()
 			#e.imprime_dados()
 			e.plota_medicao()
-			if args.medicaotype == 'a' :
+			if args.medicao == 'a' and args.medicaotype == 'a' :
 				e.plota_aproximacao()
-				e.plota_assintotica()
 
 	# configurações gerais
 	plt.legend()
