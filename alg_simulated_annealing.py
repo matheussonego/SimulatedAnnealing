@@ -160,6 +160,7 @@ def tamanho_instancia(args) :
 			print('Custo: {}'.format(custos[trial]))
 			print("")
 
+		custos = [c / n for c in custos]
 		custos_avg = np.average(custos)
 		custos_std = np.std(a=custos, ddof=False)
 		tempos_avg = np.average(tempos)  # calcula média
