@@ -312,7 +312,7 @@ class SimulatedAnnealingLinear(Experimento):
 
 	def executa_aproximacao(self):
 		# realiza aproximação
-		offset = self.medias[0]
+		offset = self.medias.copy().sort()[0]
 		self.medias = [x - offset for x in self.medias]
 		parametros, pcov = opt.curve_fit(funcao_linear, xdata=self.tamanhos, ydata=self.medias)
 		self.aproximados = [funcao_linear(x, *parametros) for x in self.tamanhos_aproximados ]
