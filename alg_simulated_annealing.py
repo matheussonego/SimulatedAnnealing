@@ -226,7 +226,7 @@ def tamanho_min_temp(args) :
 			entrada = gerar_solucao(args.nstop)
 			print("Entrada: {}".format(entrada))
 			tempo_inicio = timeit.default_timer()
-			resultados[trial], custos[trials] = annealing(entrada, n, args.alpha, args.repetitions)
+			resultados[trial], custos[trial] = annealing(entrada, n, args.alpha, args.repetitions)
 			tempo_fim = timeit.default_timer()
 			tempos[trial] = tempo_fim - tempo_inicio
 			print("Saída: {}".format(resultados[trial]))
