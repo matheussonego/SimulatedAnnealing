@@ -66,6 +66,7 @@ DEFAULT_END_MIN_TEMP = 0.00001
 
 DEFAULT_MEDICAO = 'a'
 DEFAULT_MEDICAO_TYPE = 'a'
+DEFAULT_APROXIMAR = 'n'
 
 DEFAULT_LOG_LEVEL = logging.INFO
 TIME_FORMAT = '%Y-%m-%d,%H:%M:%S'
@@ -281,7 +282,7 @@ class Experimento(ABC):
 			self.plota_gn(self.gn2_constante, self.gn2_legenda, self.aproximacao_cor_rgb, "dashed")
 
 
-class SimulatedAnnealingLinear(Experimento):
+class SimulatedAnnealing(Experimento):
 
 	def __init__(self, args):
 		super().__init__(args)
@@ -361,7 +362,7 @@ def main():
 	help_msg = "alpha.        Padrão:{}".format(DEFAULT_ALPHA)
 	parser.add_argument("--alpha", "-p", help=help_msg, default=DEFAULT_ALPHA, type=float)
 
-	help_mesg = "repetições.         Padrão:{}".format(DEFAULT_REPETICOES)
+	help_msg = "repetições.         Padrão:{}".format(DEFAULT_REPETICOES)
 	parser.add_argument("--repetitions", "-r", help=help_msg, default=DEFAULT_REPETICOES, type=float)
 
 	help_msg = "medicao.       Padrão:{}".format(DEFAULT_MEDICAO)
@@ -369,6 +370,9 @@ def main():
 
 	help_msg = "tipo de medicao. a = medição por tempo, b = medicao por custo	  Padrão:{}".format(DEFAULT_MEDICAO_TYPE)
 	parser.add_argument("--medicaotype", "-mt", help=help_msg, default=DEFAULT_MEDICAO_TYPE, type=str)
+
+	help_msg = "aproximar.		Padrão:{}".format(DEFAULT_APROXIMAR)
+	parser.add_argument("--aproximar", "-ap", help=help_msg, default=DEFAULT_APROXIMAR, type=str)
 
 	help_msg = "alphastart.       Padrão:{}".format(DEFAULT_START_ALPHA)
 	parser.add_argument("--alphastart", "-sa", help=help_msg, default=DEFAULT_START_ALPHA, type=float)
@@ -419,7 +423,7 @@ def main():
 	imprime_config(args)
 
 	# lista de experimentos disponíveis TspNaive(args),
-	experimentos = [SimulatedAnnealingLinear(args)]
+	experimentos = [SimulatedAnnealing(args)]
 
 	for e in experimentos:
 		if args.algoritmos is None or e.id in args.algoritmos:
@@ -429,7 +433,7 @@ def main():
 			e.executa_aproximacao()
 			#e.imprime_dados()
 			e.plota_medicao()
-			if args.medicao == 'a' and args.medicaotype == 'a' :
+			if args.medicao == 'a' and args.medicaotype == 'a' and args.aproximar == 's':
 				e.plota_aproximacao()
 
 	# configurações gerais
@@ -438,7 +442,7 @@ def main():
 
 	title = "Impacto de n"
 	xlabel = "Tamanho da instância (n)"
-	ylabel = "Tempo"
+	ylabel = "Tempo (s)"
 
 	if (args.medicaotype == 'b'):
 		ylabel = "Custo"
